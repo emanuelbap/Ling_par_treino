@@ -1,0 +1,7 @@
+### Aprofundamento em Compiladores:
+- Esse repositório é para treinar como criar um compilador do zero que seja funcional.
+
+* Roteiro 1:
+O compilador deve passar para esse tipo de comando de terminal:
+  $ python3 main.py '1 + 1'
+  
