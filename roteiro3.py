@@ -134,7 +134,36 @@ class Parser:
             self.eat(Token.INT)
         return result
             
-    
+    def parseFactor(self):
+        # Se for NUMBER
+        if self.lexer.next.type == Token.INT:
+            result = self.lexer.next.value  # peguei o valor do numero
+            self.eat(Token.INT)
+
+            return result
+        
+        # +- unário
+        if self.lexer.next.type == Token.PLUS:
+            self.eat(Token.PLUS)
+            return self.parseFactor()
+        
+        if self.lexer.next.type == Token.MINUS:
+            self.eat(Token.MINUS)
+            return self.parseFactor
+        
+        # Se for PARÊNTESES
+        if self.lexer.next.type == Token.OPEN_PAR:
+            self.eat(Token.OPEN_PAR)
+
+            result = self.parseExpression()
+
+            self.eat(Token.CLOSE_PAR)
+
+            return result
+        
+        else:
+            raise Exception("Deu merda!")
+
 
     # I need to creat a new function "parseTerm".
     def parseTerm(self):
