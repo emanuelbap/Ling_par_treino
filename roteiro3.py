@@ -8,8 +8,7 @@ class Token:
     PLUS = 'PLUS'
     MINUS = "MINUS"
     EOF = 'EOF' # whitespace
-    XOR = 'XOR'
-    MULT = 'Mult'
+    MULT = 'MULT'
     DIV = 'DIV'
     OPEN_PAR = 'OPEN_PAR'
     CLOSE_PAR = 'CLOSE_PAR'
@@ -62,11 +61,6 @@ class Lexer:
             self.position += 1 
             return
         
-        if current_char == '^':
-            self.next = Token(Token.XOR, '^')
-            self.position += 1
-            return
-        
         if current_char == '*':
             self.next = Token(Token.MULT, '*')
             self.position += 1
@@ -104,34 +98,20 @@ class Parser:
             raise Exception(f"[Parser] Unexpected token {self.lexer.next.type}")
     
     def parseExpression(self):
-        '''I will implement the lenguage rules'''
-        # it needs to stay with INT
-        if self.lexer.next.type != Token.INT:
-            raise Exception(f"[Parser] unexpected token {self.lexer.next.type}")
-        
-        result = self.lexer.next.value
-        self.eat(Token.INT)  # I ate the INT token
+        result = self.parseTerm()
 
-        # While have + or - perform the calculation
-        while self.lexer.next.type in (Token.PLUS, Token.MINUS, Token.XOR):
+        while self.lexer.next.type in (Token.PLUS, Token.MINUS):
             op = self.lexer.next.type
-            self.eat(op)  # I will consume the token into self.lexer.next.type
+            self.eat(op)
 
-            if self.lexer.next.type != Token.INT:
-                raise Exception(f"[Parser] unexpected token {self.lexer.next.type}")
+            rhs = self.parseTerm()
 
             if op == Token.PLUS:
-                result += self.lexer.next.value
-            if op == Token.MINUS:
-                result -= self.lexer.next.value
+                result += rhs
 
-            if op == Token.XOR:
-                if result != self.lexer.next.value:
-                    result = 1
-                else:
-                    result = 0
-            
-            self.eat(Token.INT)
+            elif op == Token.MINUS:
+                result -= rhs
+
         return result
             
     def parseFactor(self):
@@ -149,7 +129,7 @@ class Parser:
         
         if self.lexer.next.type == Token.MINUS:
             self.eat(Token.MINUS)
-            return self.parseFactor
+            return -self.parseFactor()
         
         # Se for PARÊNTESES
         if self.lexer.next.type == Token.OPEN_PAR:
@@ -170,7 +150,7 @@ class Parser:
         '''The function handles multiplication and division'''
         result = self.parseFactor() # peguei o primeiro valor
 
-        while self.lexer.next.type in (Token.Mult, Token.DIV):
+        while self.lexer.next.type in (Token.MULT, Token.DIV):
             op = self.lexer.next.type
 
             self.eat(op)
@@ -181,7 +161,7 @@ class Parser:
                 result *= rhs
 
             if op == Token.DIV:
-                result //= rhs
+                result /= rhs
     
 
         return result
